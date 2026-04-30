@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Project Selection System</title>
+    <!-- Reference global styles (path correct: from common/html/ to common/css/, ../css/) -->
+    <link rel="stylesheet" href="../css/global.css">
+    <!-- Reference login page exclusive styles (corresponds to login.css in your common/css) -->
+    <link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-logo" id="logoHome">Project Selection System</div>
+        <div class="header-user" id="userInfoArea"></div>
+    </header>
+
+    <main class="main-content">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1>System Login</h1>
+                    <p>Please select your role and log in to your account</p>
+                </div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="loginRole" required>
+                            <option value="STUDENT">Student</option>
+                            <option value="TEACHER">Teacher</option>
+                            <option value="ADMIN">Administrator</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="loginUsername" placeholder="Enter your username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                    </div>
+
+                    <!-- Same level jump: write filename directly -->
+                    <div class="form-options">
+                        <a href="forgot-password.html" class="forgot-link">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">Login</button>
+                    <div id="loginMessage" class="message-area"></div>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="register.html">Register</a></p>
+                    <!-- Return to home path: from common/html/ to frontend/, need ../ twice -->
+                    <p><a href="./index.html">Back to Home</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Reference common JS (path correct) -->
+    <script src="../js/utils.js"></script>
+    <script src="../js/api.js"></script>
+    <script>
+        if (!mockUsers || mockUsers.length === 0) {
+            mockUsers = [
+                { id: 1, username: "student1", password: "123", role: "STUDENT", name: "John Doe", email: "s1@test.com" },
+                { id: 2, username: "teacher1", password: "123", role: "TEACHER", name: "Prof. Smith", email: "t1@test.com" },
+                { id: 3, username: "admin1", password: "123", role: "ADMIN", name: "System Admin", email: "admin@test.com" }
+            ];
+            saveUsers(mockUsers);
+        }
+
+        currentUser = null;
+        const SESSION_KEY = 'project_system_user';
+
+        function saveSession() {
+            if (currentUser) {
+                sessionStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+            } else {
+                sessionStorage.removeItem(SESSION_KEY);
+            }
+        }
+
+        function loadSession() {
+            const stored = sessionStorage.getItem(SESSION_KEY);
+            if (stored) {
+                try {
+                    currentUser = JSON.parse(stored);
+                } catch (e) {
+                    currentUser = null;
+                }
+            } else {
+                currentUser = null;
+            }
+        }
+
+        function showMessage(selector, msg, type) {
+            const $msgDiv = $(selector);
+            $msgDiv.text(msg).removeClass('message-success message-error').addClass('message-' + type).show();
+            setTimeout(() => {
+                $msgDiv.hide().text('').removeClass('message-' + type);
+            }, 3000);
+        }
+
+        function updateHeader() {
+            if (currentUser && currentUser.name) {
+                let roleText = '';
+                switch (currentUser.role) {
+                    case 'STUDENT': roleText = 'Student'; break;
+                    case 'TEACHER': roleText = 'Teacher'; break;
+                    case 'ADMIN': roleText = 'Admin'; break;
+                    default: roleText = '';
+                }
+                $('#userInfoArea').html(`Welcome, ${currentUser.name} (${roleText}) | <a href="#" id="logoutBtn" style="color:#667eea; text-decoration:none;">Logout</a>`);
+                $('#logoutBtn').on('click', function(e) {
+                    e.preventDefault();
+                    currentUser = null;
+                    localStorage.removeItem('authToken');
+                    saveSession();
+                    window.location.reload();
+                });
+            } else {
+                $('#userInfoArea').html('Not logged in');
+            }
+        }
+
+        // Adapt to your role directory structure
+        function getRedirectUrl(role) {
+            switch (role) {
+                case 'STUDENT':
+                    return "../../student/html/student-dashboard.html";
+                case 'TEACHER':
+                    return "../../teacher/html/teacher.html";
+                case 'ADMIN':
+                    return "../../ administrator/html/administrator.html";
+                default:
+                    return "../../index.html";
+            }
+        }
+
+        async function handleLogin(role, username, password) {
+            try {
+                const data = await AuthAPI.login(username, password);
+                localStorage.setItem('authToken', data.token);
+                localStorage.setItem('currentUser', JSON.stringify(data.user));
+                showMessage('#loginMessage', 'Login successful, redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = getRedirectUrl(data.user.role);
+                }, 800);
+            } catch (err) {
+                showMessage('#loginMessage', err.message || 'Login failed', 'error');
+            }
+        }
+
+        $(document).ready(function() {
+            loadSession();
+            if (currentUser) {
+                window.location.href = getRedirectUrl(currentUser.role);
+                return;
+            }
+            updateHeader();
+
+            $('#logoHome').on('click', function() {
+                window.location.href = "index.html";
+            });
+
+            $('#loginForm').on('submit', function(e) {
+                e.preventDefault();
+                const role = $('#loginRole').val();
+                const username = $('#loginUsername').val().trim();
+                const password = $('#loginPassword').val();
+
+                if (!username || !password) {
+                    showMessage('#loginMessage', 'Please enter username and password', 'error');
+                    return;
+                }
+
+                handleLogin(role, username, password);
+            });
+        });
+    </script>
+</body>
+</html>
