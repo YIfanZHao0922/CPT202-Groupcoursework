@@ -1,0 +1,54 @@
+.page-header {
+    margin-bottom: 24px;
+}
+
+.filter-card .filter-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.project-card .project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.project-title {
+    margin-bottom: 0;
+    flex: 1;
+    margin-right: 16px;
+}
+
+.project-supervisor {
+    color: var(--primary-color);
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.project-description {
+    margin-bottom: 16px;
+    line-height: 1.7;
+}
+
+.project-meta {
+    margin-bottom: 20px;
+    padding: 12px;
+    background-color: var(--background);
+    border-radius: var(--border-radius);
+}
+
+.meta-item {
+    margin-bottom: 8px;
+}
+
+.meta-item:last-child {
+    margin-bottom: 0;
+}
+
+.project-actions {
+    display: flex;
+    justify-content: flex-end;
+}

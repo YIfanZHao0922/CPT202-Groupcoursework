@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Details | Student Portal</title>
+    <link rel="stylesheet" href="../../common/css/global.css">
+    <link rel="stylesheet" href="../css/pages/project-detail.css">
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="header-logo">Project Topic Management System</div>
+        <div class="header-user">
+            <span>Welcome, Student</span>
+            <a href="profile.html" class="btn btn-outline">My Profile</a>
+            <button id="logoutBtn" class="btn btn-danger">Logout</button>
+        </div>
+    </header>
+
+    <!-- Sidebar Menu -->
+    <aside class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="student-dashboard.html">Dashboard</a></li>
+            <li><a href="project-list.html" class="active">Browse Projects</a></li>
+            <li><a href="application-history.html">My Applications</a></li>
+            <li><a href="profile.html">Profile Settings</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Back Navigation -->
+            <div class="back-nav">
+                <a href="project-list.html" class="back-link">← Back to Project List</a>
+            </div>
+
+            <!-- Project Header Card -->
+            <div class="project-header-card card">
+                <div class="project-header-top">
+                    <h1>Web-Based Student Project Management System</h1>
+                    <span class="badge badge-pending">Available</span>
+                </div>
+                <p class="project-supervisor-info">
+                    <strong>Supervisor:</strong> Dr. John Smith | Department of Computer Science<br>
+                    <strong>Email:</strong> john.smith@university.edu
+                </p>
+            </div>
+
+            <div class="row">
+                <!-- Left Column: Project Details -->
+                <div class="col-6">
+                    <div class="card">
+                        <h2>Project Overview</h2>
+                        <p>This project aims to develop a full-stack web application for managing student project topic selection, application workflow, and supervision tracking. The system will support three distinct user roles: administrator, supervisor, and student, each with tailored access permissions and functionalities.</p>
+
+                        <h3>Project Objectives</h3>
+                        <ul>
+                            <li>To design and implement a user-friendly interface for project topic browsing and selection</li>
+                            <li>To develop a secure role-based access control system for different user types</li>
+                            <li>To create an automated workflow for project application submission, review, and decision-making</li>
+                            <li>To implement a database system for efficient project and user data management</li>
+                        </ul>
+
+                        <h3>Required Skills</h3>
+                        <div class="skills-tags">
+                            <span class="skill-tag">HTML5</span>
+                            <span class="skill-tag">CSS3</span>
+                            <span class="skill-tag">JavaScript</span>
+                            <span class="skill-tag">SQL</span>
+                            <span class="skill-tag">Web Development</span>
+                            <span class="skill-tag">Database Design</span>
+                        </div>
+
+                        <h3>Project Scope & Deliverables</h3>
+                        <ul>
+                            <li>Complete system architecture design and documentation</li>
+                            <li>Fully functional front-end and back-end system</li>
+                            <li>Comprehensive testing report and user manual</li>
+                            <li>Final project demonstration and presentation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Right Column: Application Form -->
+                <div class="col-6">
+                    <!-- Business Rule Warning (Conditional) -->
+                    <div class="card warning-card">
+                        <h3>⚠️ Important Business Rule</h3>
+                        <p>According to university policy, <strong>a student may have only one active agreed project at a time</strong>. If you already have an accepted project, you cannot submit new applications.</p>
+                    </div>
+
+                    <div class="card">
+                        <h2>Submit Application</h2>
+                        <form id="applicationForm">
+                            <div class="form-group">
+                                <label for="projectId">Project ID (Auto-filled)</label>
+                                <input type="text" id="projectId" value="PRJ-2026-CS-001" readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="studentName">Your Full Name</label>
+                                <input type="text" id="studentName" value="Student Name" readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="studentId">Your Student ID</label>
+                                <input type="text" id="studentId" value="202601001" readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="personalStatement">Personal Statement / Motivation Letter *</label>
+                                <textarea
+                                    id="personalStatement"
+                                    rows="6"
+                                    placeholder="Explain why you are interested in this project, what relevant skills you possess, and how you plan to contribute to the project..."
+                                    required
+                                ></textarea>
+                                <p class="form-hint">Minimum 200 words. Be specific about your relevant experience and skills.</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="relevantCourses">Relevant Courses Taken (Optional)</label>
+                                <textarea
+                                    id="relevantCourses"
+                                    rows="3"
+                                    placeholder="List any relevant courses you have taken that prepare you for this project..."
+                                ></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="confirmInfo" required>
+                                    I confirm that all information provided in this application is accurate and complete to the best of my knowledge.
+                                </label>
+                            </div>
+
+                            <div class="form-actions">
+                                <a href="project-list.html" class="btn btn-outline">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Submit Application</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../common/js/auth.js"></script>
+    <script src="../../common/js/api.js"></script>
+    <script>
+        async function loadProjectDetail() {
+            const params = new URLSearchParams(window.location.search);
+            const projectId = params.get('projectId');
+            if (!projectId) return;
+
+            try {
+                const project = await ProjectAPI.get(projectId);
+                document.querySelector('.project-header-top h1').textContent = project.title;
+                document.querySelector('.project-header-top .badge').textContent = project.status;
+                document.querySelector('.project-supervisor-info').innerHTML =
+                    `<strong>Supervisor:</strong> ${escapeHtml(project.teacherName || 'TBD')}<br>`;
+
+                const overviewSection = document.querySelector('.card p');
+                if (overviewSection) overviewSection.textContent = project.description;
+
+                const skillsContainer = document.querySelector('.skills-tags');
+                if (skillsContainer && project.requiredSkills) {
+                    const skills = Array.isArray(project.requiredSkills)
+                        ? project.requiredSkills
+                        : project.requiredSkills.split(',').map(s => s.trim());
+                    skillsContainer.innerHTML = skills.map(s => `<span class="skill-tag">${escapeHtml(s)}</span>`).join('');
+                }
+
+                document.getElementById('projectId').value = project.id;
+
+                const user = await UserAPI.getMe();
+                document.getElementById('studentName').value = user.fullName || user.username;
+                document.getElementById('studentId').value = user.id;
+            } catch (err) {
+                console.error('Failed to load project detail:', err);
+            }
+        }
+
+        document.getElementById('applicationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const projectId = parseInt(document.getElementById('projectId').value);
+            const notes = document.getElementById('personalStatement').value;
+
+            try {
+                await ApplicationAPI.create({ projectId, notes });
+                alert('Application submitted successfully!');
+                window.location.href = 'application-history.html';
+            } catch (err) {
+                alert(err.message || 'Failed to submit application');
+            }
+        });
+
+        loadProjectDetail();
+    </script>
+</body>
+</html>
