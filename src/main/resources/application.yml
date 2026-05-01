@@ -1,0 +1,50 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: project-selection-system
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/project_selection_system?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none   # Frontend team already created the schema, do NOT drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    default-property-inclusion: non_null
+
+# Custom JWT settings
+app:
+  jwt:
+    # In production, override via environment variable APP_JWT_SECRET
+    secret: ${APP_JWT_SECRET:cpt202-project-selection-system-default-secret-key-please-change-in-production-environment}
+    expiration-ms: 86400000   # 24h
+    header: Authorization
+    prefix: "Bearer "
+
+  cors:
+    allowed-origins:
+      - "http://localhost:5500"
+      - "http://localhost:8080"
+      - "http://127.0.0.1:5500"
+      - "http://127.0.0.1:8080"
+
+logging:
+  level:
+    com.cpt202.pss: DEBUG
+    org.springframework.security: INFO
