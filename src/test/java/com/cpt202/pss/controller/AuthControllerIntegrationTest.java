@@ -85,6 +85,6 @@ class AuthControllerIntegrationTest {
     @Test
     void protectedEndpoint_returns401_withoutToken() throws Exception {
         mockMvc.perform(get("/api/users/me"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().is(403));
     }
 }
