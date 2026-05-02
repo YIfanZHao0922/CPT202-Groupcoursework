@@ -1,0 +1,23 @@
+# Editor Configuration File
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# System Cache Files
+.DS_Store
+Thumbs.db
+
+# Dependency Packages / Compilation Artifacts
+node_modules/
+dist/
+build/
+
+# Logs / Temporary Files
+*.log
+*.tmp
+.temp/
+
+# Sensitive Configuration File
+*.env
+*.env.local
