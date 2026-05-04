@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+app:
+  jwt:
+    secret: test-secret-key-for-junit-tests-must-be-long-enough-for-hs256-algorithm-padding
+    expiration-ms: 3600000
+    header: Authorization
+    prefix: "Bearer "
+  cors:
+    allowed-origins:
+      - "*"
+
+logging:
+  level:
+    com.cpt202.pss: INFO
