@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Admin Console - Project Topic Management System</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="../../common/css/global.css">
+    <link rel="stylesheet" href="../css/administrator.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-logo">Project Topic Management System</div>
+        <div class="header-user">
+            <span>Welcome, Administrator</span>
+            <button id="logoutBtn" class="btn btn-danger">Logout</button>
+        </div>
+    </header>
+
+    <aside class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a id="menu-users" class="active">User Management</a></li>
+            <li><a id="menu-categories">Category Management</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- User Management View -->
+            <div id="users-view" class="view-panel active">
+                <div class="page-header">
+                    <h1>User Management</h1>
+                    <p>Manage system users, roles, and account status</p>
+                </div>
+                <div class="card">
+                    <div class="filter-bar">
+                        <div class="form-group"><select id="user-role-filter"><option value="">All Roles</option><option value="student">Student</option><option value="teacher">Teacher</option><option value="admin">Admin</option></select></div>
+                        <button id="new-user-btn" class="btn btn-primary">+ New User</button>
+                    </div>
+                    <table class="table">
+                        <thead><tr><th>ID</th><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody id="users-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Category Management View -->
+            <div id="categories-view" class="view-panel">
+                <div class="page-header">
+                    <h1>Category Management</h1>
+                    <p>Manage project categories and their descriptions</p>
+                </div>
+                <div class="card">
+                    <div class="filter-bar">
+                        <button id="new-cat-btn" class="btn btn-primary">+ New Category</button>
+                    </div>
+                    <table class="table">
+                        <thead><tr><th>ID</th><th>Category Name</th><th>Description</th><th>Actions</th></tr></thead>
+                        <tbody id="categories-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../common/js/utils.js"></script>
+    <script src="../js/administrator.js"></script>
+</body>
+</html>
