@@ -1,0 +1,319 @@
+{
+  "info": {
+    "name": "CPT202 Project Selection System API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Full API collection for the Online Project Selection System (Option C). Use the Auth folder first to obtain a JWT - it is automatically stored in collection variables."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token",   "value": "" }
+  ],
+  "item": [
+    {
+      "name": "01 Auth",
+      "item": [
+        {
+          "name": "Register Student",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"alice\",\n  \"password\": \"secret123\",\n  \"email\": \"alice@xjtlu.edu.cn\",\n  \"fullName\": \"Alice Wong\",\n  \"role\": \"Student\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (Admin)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const data = pm.response.json().data;",
+                "if (data && data.token) {",
+                "  pm.collectionVariables.set('token', data.token);",
+                "  console.log('Stored token: ' + data.token.substring(0,30) + '...');",
+                "}"
+              ],
+              "type": "text/javascript"
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (Teacher)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": ["const d=pm.response.json().data; if(d&&d.token) pm.collectionVariables.set('token', d.token);"],
+              "type": "text/javascript"
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"teacher1\",\n  \"password\": \"teacher123\"\n}" }
+          }
+        },
+        {
+          "name": "Login (Student)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": ["const d=pm.response.json().data; if(d&&d.token) pm.collectionVariables.set('token', d.token);"],
+              "type": "text/javascript"
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"student1\",\n  \"password\": \"student123\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Users",
+      "item": [
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/users/me"
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/users/me",
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Alice Wong (updated)\"\n}" }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/users/me/change-password",
+            "body": { "mode": "raw", "raw": "{\n  \"oldPassword\": \"student123\",\n  \"newPassword\": \"newpass123\"\n}" }
+          }
+        },
+        {
+          "name": "Admin: List Users",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/users?keyword=alice"
+          }
+        },
+        {
+          "name": "Admin: Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/users/4",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"INACTIVE\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Categories",
+      "item": [
+        {
+          "name": "List Categories (public)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/categories" }
+        },
+        {
+          "name": "Admin: Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/categories",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Cybersecurity\",\n  \"description\": \"Security-focused projects\"\n}" }
+          }
+        },
+        {
+          "name": "Admin: Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/categories/1",
+            "body": { "mode": "raw", "raw": "{\n  \"description\": \"Machine Learning, NLP, Computer Vision\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Projects",
+      "item": [
+        {
+          "name": "Browse / Search Projects",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/projects?keyword=web&status=AVAILABLE"
+          }
+        },
+        {
+          "name": "Get Project Detail",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/projects/1"
+          }
+        },
+        {
+          "name": "Teacher: My Projects",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/projects/mine"
+          }
+        },
+        {
+          "name": "Teacher: Create Project",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/projects",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Federated Learning Privacy Study\",\n  \"description\": \"Investigate differential privacy techniques in federated learning\",\n  \"requiredSkills\": \"Python, PyTorch, math\",\n  \"maxStudents\": 2,\n  \"categoryIds\": [1]\n}"
+            }
+          }
+        },
+        {
+          "name": "Teacher: Update Project",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/projects/1",
+            "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated description\"\n}" }
+          }
+        },
+        {
+          "name": "Teacher: Close Project",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/projects/1/status",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"CLOSED\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Applications",
+      "item": [
+        {
+          "name": "Student: Apply to Project",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/applications",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectId\": 1,\n  \"notes\": \"Strong PyTorch background. Final-year focus on medical AI.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Student: My Applications",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/applications/mine"
+          }
+        },
+        {
+          "name": "Student: Withdraw Application",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/applications/1/withdraw"
+          }
+        },
+        {
+          "name": "Teacher: Apps for Project",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/applications/project/1"
+          }
+        },
+        {
+          "name": "Teacher: Accept Application",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/applications/1/decision",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACCEPTED\",\n  \"feedback\": \"Welcome on board!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Teacher: Reject Application",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/applications/2/decision",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"REJECTED\",\n  \"feedback\": \"Skills do not match\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
