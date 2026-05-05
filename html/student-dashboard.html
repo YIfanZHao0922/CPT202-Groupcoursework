@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | Project Topic Management System</title>
+    <link rel="stylesheet" href="../../common/css/global.css">
+    <link rel="stylesheet" href="../css/pages/dashboard.css">
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="header-logo">Project Topic Management System</div>
+        <div class="header-user">
+            <span>Welcome, <strong>Student</strong></span>
+            <a href="profile.html" class="btn btn-outline">My Profile</a>
+            <button id="logoutBtn" class="btn btn-danger">Logout</button>
+        </div>
+    </header>
+
+    <!-- Sidebar Menu -->
+    <aside class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="student-dashboard.html" class="active">Dashboard</a></li>
+            <li><a href="project-list.html">Browse Projects</a></li>
+            <li><a href="application-history.html">My Applications</a></li>
+            <li><a href="profile.html">Profile Settings</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1>Student Dashboard</h1>
+                <p>Overview of your project topic application progress</p>
+            </div>
+
+            <!-- Status Cards Row -->
+            <div class="status-cards-row">
+                <div class="status-card card">
+                    <div class="status-icon status-icon-pending">📋</div>
+                    <div class="status-content">
+                        <h3>Pending Applications</h3>
+                        <p class="status-number">1</p>
+                    </div>
+                </div>
+                <div class="status-card card">
+                    <div class="status-icon status-icon-success">✅</div>
+                    <div class="status-content">
+                        <h3>Accepted Projects</h3>
+                        <p class="status-number">0</p>
+                    </div>
+                </div>
+                <div class="status-card card">
+                    <div class="status-icon status-icon-warning">🔍</div>
+                    <div class="status-content">
+                        <h3>Available Projects</h3>
+                        <p class="status-number">24</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Left Column: Recent Activity -->
+                <div class="col-6">
+                    <div class="card">
+                        <h2>Recent Activity</h2>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-time">Today, 10:30 AM</div>
+                                <p class="activity-text">You submitted an application for <strong>"Web-Based Student Project Management System"</strong></p>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-time">Yesterday, 3:15 PM</div>
+                                <p class="activity-text">You viewed the project details of <strong>"Machine Learning Model for Student Performance Prediction"</strong></p>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-time">2 days ago</div>
+                                <p class="activity-text">You updated your personal profile information</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Quick Actions & Notifications -->
+                <div class="col-6">
+                    <div class="card">
+                        <h2>Quick Actions</h2>
+                        <div class="quick-actions">
+                            <a href="project-list.html" class="btn btn-outline btn-full">Browse Available Projects</a>
+                            <a href="application-history.html" class="btn btn-outline btn-full">View My Application Status</a>
+                            <a href="profile.html" class="btn btn-outline btn-full">Update My Profile</a>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>Important Notifications</h2>
+                        <div class="notification-list">
+                            <div class="notification-item notification-warning">
+                                <p><strong>Application Deadline Reminder:</strong> The first round of project applications closes on 20th April 2026.</p>
+                            </div>
+                            <div class="notification-item notification-info">
+                                <p><strong>New Project Topics Added:</strong> 5 new AI/ML related project topics have been published by the Department of Data Science.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../common/js/auth.js"></script>
+    <script src="../../common/js/api.js"></script>
+    <script>
+        async function loadDashboard() {
+            try {
+                const user = await UserAPI.getMe();
+                document.querySelector('.header-user span').innerHTML = `Welcome, <strong>${escapeHtml(user.fullName || user.username)}</strong>`;
+
+                const applications = await ApplicationAPI.getMine();
+                const pending = applications.filter(a => a.status === 'PENDING').length;
+                const accepted = applications.filter(a => a.status === 'ACCEPTED' || a.status === 'AGREED').length;
+
+                const projects = await ProjectAPI.list({ status: 'AVAILABLE' });
+                const available = projects.length;
+
+                document.querySelector('.status-cards-row .status-card:nth-child(1) .status-number').textContent = pending;
+                document.querySelector('.status-cards-row .status-card:nth-child(2) .status-number').textContent = accepted;
+                document.querySelector('.status-cards-row .status-card:nth-child(3) .status-number').textContent = available;
+            } catch (err) {
+                console.error('Failed to load dashboard:', err);
+            }
+        }
+        loadDashboard();
+    </script>
+</body>
+</html>

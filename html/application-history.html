@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Application History | Student Portal</title>
+    <link rel="stylesheet" href="../../common/css/global.css">
+    <link rel="stylesheet" href="../css/pages/application-history.css">
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="header-logo">Project Topic Management System</div>
+        <div class="header-user">
+            <span>Welcome, Student</span>
+            <a href="profile.html" class="btn btn-outline">My Profile</a>
+            <button id="logoutBtn" class="btn btn-danger">Logout</button>
+        </div>
+    </header>
+
+    <!-- Sidebar Menu -->
+    <aside class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="student-dashboard.html">Dashboard</a></li>
+            <li><a href="project-list.html">Browse Projects</a></li>
+            <li><a href="application-history.html" class="active">My Applications</a></li>
+            <li><a href="profile.html">Profile Settings</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1>My Project Applications</h1>
+                <p>View and manage all your project topic applications</p>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <button class="tab-btn active">All Applications</button>
+                <button class="tab-btn">Pending</button>
+                <button class="tab-btn">Accepted</button>
+                <button class="tab-btn">Rejected</button>
+                <button class="tab-btn">Withdrawn</button>
+            </div>
+
+            <!-- Applications Table -->
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Application ID</th>
+                                <th>Project Title</th>
+                                <th>Supervisor</th>
+                                <th>Submitted Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="applications-tbody">
+                            <!-- Dynamically loaded from backend -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Application Statistics Summary -->
+            <div class="stats-summary card">
+                <h3>Application Summary</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <p class="stat-label">Total Submitted</p>
+                        <p class="stat-number" id="stat-total">0</p>
+                    </div>
+                    <div class="stat-item">
+                        <p class="stat-label">Pending Review</p>
+                        <p class="stat-number stat-pending" id="stat-pending">0</p>
+                    </div>
+                    <div class="stat-item">
+                        <p class="stat-label">Accepted</p>
+                        <p class="stat-number stat-success" id="stat-accepted">0</p>
+                    </div>
+                    <div class="stat-item">
+                        <p class="stat-label">Rejected / Withdrawn</p>
+                        <p class="stat-number stat-secondary" id="stat-rejected">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../common/js/auth.js"></script>
+    <script src="../../common/js/api.js"></script>
+    <script>
+        function getStatusBadge(status) {
+            const map = {
+                'PENDING': 'badge-pending',
+                'ACCEPTED': 'badge-accepted',
+                'REJECTED': 'badge-rejected',
+                'WITHDRAWN': 'badge-withdrawn',
+                'AGREED': 'badge-accepted'
+            };
+            return `<span class="badge ${map[status] || 'badge-pending'}">${status}</span>`;
+        }
+
+        async function loadApplications() {
+            try {
+                const apps = await ApplicationAPI.getMine();
+                const tbody = document.getElementById('applications-tbody');
+
+                if (apps.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No applications found</td></tr>';
+                } else {
+                    tbody.innerHTML = apps.map(app => `
+                        <tr>
+                            <td>APP-${String(app.id).padStart(4, '0')}</td>
+                            <td><strong>${escapeHtml(app.projectTitle || 'Unknown')}</strong></td>
+                            <td>${escapeHtml(app.teacherName || 'TBD')}</td>
+                            <td>${app.createdAt ? new Date(app.createdAt).toLocaleString() : '-'}</td>
+                            <td>${getStatusBadge(app.status)}</td>
+                            <td>
+                                <a href="project-detail.html?projectId=${app.projectId}" class="action-link">View</a>
+                                ${app.status === 'PENDING' ? `<button class="action-link action-danger" onclick="withdrawApp(${app.id})">Withdraw</button>` : ''}
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+
+                document.getElementById('stat-total').textContent = apps.length;
+                document.getElementById('stat-pending').textContent = apps.filter(a => a.status === 'PENDING').length;
+                document.getElementById('stat-accepted').textContent = apps.filter(a => a.status === 'ACCEPTED' || a.status === 'AGREED').length;
+                document.getElementById('stat-rejected').textContent = apps.filter(a => a.status === 'REJECTED' || a.status === 'WITHDRAWN').length;
+            } catch (err) {
+                console.error('Failed to load applications:', err);
+            }
+        }
+
+        async function withdrawApp(id) {
+            if (!confirm('Are you sure you want to withdraw this application?')) return;
+            try {
+                await ApplicationAPI.withdraw(id);
+                loadApplications();
+            } catch (err) {
+                alert(err.message || 'Failed to withdraw application');
+            }
+        }
+
+        loadApplications();
+    </script>
+</body>
+</html>

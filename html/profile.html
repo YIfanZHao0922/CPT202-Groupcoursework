@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | Student Portal</title>
+    <link rel="stylesheet" href="../../common/css/global.css">
+    <link rel="stylesheet" href="../css/pages/profile.css">
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="header-logo">Project Topic Management System</div>
+        <div class="header-user">
+            <span>Welcome, Student</span>
+            <a href="profile.html" class="btn btn-outline active">My Profile</a>
+            <button id="logoutBtn" class="btn btn-danger">Logout</button>
+        </div>
+    </header>
+
+    <!-- Sidebar Menu -->
+    <aside class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="student-dashboard.html">Dashboard</a></li>
+            <li><a href="project-list.html">Browse Projects</a></li>
+            <li><a href="application-history.html">My Applications</a></li>
+            <li><a href="profile.html" class="active">Profile Settings</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1>My Profile Settings</h1>
+                <p>View and update your personal information and account settings</p>
+            </div>
+
+            <div class="row">
+                <!-- Left Column: Profile Information Form -->
+                <div class="col-6">
+                    <div class="card">
+                        <h2>Personal Information</h2>
+                        <form id="profileForm">
+                            <div class="form-group">
+                                <label for="profileStudentId">Student ID (Read-only)</label>
+                                <input type="text" id="profileStudentId" value="202601001" readonly>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="firstName">First Name *</label>
+                                        <input type="text" id="firstName" value="Student" required>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="lastName">Last Name *</label>
+                                        <input type="text" id="lastName" value="Name" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="universityEmail">University Email (Read-only)</label>
+                                <input type="email" id="universityEmail" value="student.name@university.edu" readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="personalEmail">Personal Email (Optional)</label>
+                                <input type="email" id="personalEmail" placeholder="your.personal@email.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phoneNumber">Phone Number (Optional)</label>
+                                <input type="tel" id="phoneNumber" placeholder="+86 138 0000 0000">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="programme">Study Programme *</label>
+                                <select id="programme" required>
+                                    <option value="bsc-cs" selected>BSc Computer Science</option>
+                                    <option value="bsc-se">BSc Software Engineering</option>
+                                    <option value="bsc-ds">BSc Data Science</option>
+                                    <option value="bsc-ai">BSc Artificial Intelligence</option>
+                                    <option value="msc-cs">MSc Computer Science</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="yearOfStudy">Year of Study *</label>
+                                <select id="yearOfStudy" required>
+                                    <option value="1">Year 1</option>
+                                    <option value="2">Year 2</option>
+                                    <option value="3" selected>Year 3</option>
+                                    <option value="4">Year 4</option>
+                                    <option value="pg">Postgraduate</option>
+                                </select>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-outline">Cancel Changes</button>
+                                <button type="submit" class="btn btn-primary">Save Profile Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Right Column: Skills & Password Settings -->
+                <div class="col-6">
+                    <!-- Skills Section -->
+                    <div class="card">
+                        <h2>My Skills & Expertise</h2>
+                        <p class="section-hint">Update your skills to help supervisors find suitable projects for you.</p>
+
+                        <div class="form-group">
+                            <label for="technicalSkills">Technical Skills</label>
+                            <textarea
+                                id="technicalSkills"
+                                rows="4"
+                                placeholder="List your technical skills, e.g., programming languages, tools, frameworks..."
+                            >HTML, CSS, JavaScript, Python, SQL, Git, Basic Machine Learning</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="projectInterests">Project Interests (Optional)</label>
+                            <textarea
+                                id="projectInterests"
+                                rows="3"
+                                placeholder="Describe your areas of interest for final year projects..."
+                            >Web development, full-stack applications, educational technology, data visualization</textarea>
+                        </div>
+
+                        <button class="btn btn-primary">Update Skills</button>
+                    </div>
+
+                    <!-- Password Change Section -->
+                    <div class="card">
+                        <h2>Change Password</h2>
+                        <form id="passwordForm">
+                            <div class="form-group">
+                                <label for="currentPassword">Current Password *</label>
+                                <input type="password" id="currentPassword" placeholder="Enter your current password" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="newPassword">New Password *</label>
+                                <input type="password" id="newPassword" placeholder="Enter your new password (min 8 characters)" required minlength="8">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirmNewPassword">Confirm New Password *</label>
+                                <input type="password" id="confirmNewPassword" placeholder="Re-enter your new password" required>
+                            </div>
+
+                            <button type="submit" class="btn btn-outline">Update Password</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../common/js/auth.js"></script>
+    <script src="../../common/js/api.js"></script>
+    <script>
+        async function loadProfile() {
+            try {
+                const user = await UserAPI.getMe();
+                document.getElementById('profileStudentId').value = user.id;
+                document.getElementById('firstName').value = user.fullName || user.username;
+                document.getElementById('universityEmail').value = user.email || '';
+                document.getElementById('personalEmail').value = user.personalEmail || '';
+                document.getElementById('phoneNumber').value = user.phoneNumber || '';
+            } catch (err) {
+                console.error('Failed to load profile:', err);
+            }
+        }
+
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            try {
+                await UserAPI.updateMe({
+                    fullName: document.getElementById('firstName').value,
+                    email: document.getElementById('personalEmail').value || document.getElementById('universityEmail').value,
+                    phoneNumber: document.getElementById('phoneNumber').value
+                });
+                alert('Profile updated successfully!');
+            } catch (err) {
+                alert(err.message || 'Failed to update profile');
+            }
+        });
+
+        document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const current = document.getElementById('currentPassword').value;
+            const newPwd = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmNewPassword').value;
+
+            if (newPwd !== confirm) {
+                alert('New passwords do not match');
+                return;
+            }
+
+            try {
+                await UserAPI.changePassword({
+                    currentPassword: current,
+                    newPassword: newPwd
+                });
+                alert('Password changed successfully!');
+                document.getElementById('passwordForm').reset();
+            } catch (err) {
+                alert(err.message || 'Failed to change password');
+            }
+        });
+
+        loadProfile();
+    </script>
+</body>
+</html>

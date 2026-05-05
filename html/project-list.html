@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Projects | Student Portal</title>
+    <link rel="stylesheet" href="../../common/css/global.css">
+    <link rel="stylesheet" href="../css/pages/project-list.css">
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="header-logo">Project Topic Management System</div>
+        <div class="header-user">
+            <span>Welcome, Student</span>
+            <a href="profile.html" class="btn btn-outline">My Profile</a>
+            <button id="logoutBtn" class="btn btn-danger">Logout</button>
+        </div>
+    </header>
+
+    <!-- Sidebar Menu -->
+    <aside class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="student-dashboard.html">Dashboard</a></li>
+            <li><a href="project-list.html" class="active">Browse Projects</a></li>
+            <li><a href="application-history.html">My Applications</a></li>
+            <li><a href="profile.html">Profile Settings</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1>Available Project Topics</h1>
+                <p>Browse, filter and apply for your final year project topics</p>
+            </div>
+
+            <!-- Search & Filter Bar -->
+            <div class="filter-card card">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="searchKeyword">Search by Keyword</label>
+                            <input
+                                type="text"
+                                id="searchKeyword"
+                                placeholder="Search project title, description, required skills..."
+                            >
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="topicCategory">Filter by Topic Category</label>
+                            <select id="topicCategory">
+                                <option value="">All Categories</option>
+                                <option value="software-engineering">Software Engineering</option>
+                                <option value="data-science">Data Science</option>
+                                <option value="ai-machine-learning">AI & Machine Learning</option>
+                                <option value="web-development">Web Development</option>
+                                <option value="cyber-security">Cyber Security</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button id="searchBtn" class="btn btn-primary">Search & Filter</button>
+                    <button id="resetBtn" class="btn btn-outline">Reset Filters</button>
+                </div>
+            </div>
+
+            <!-- Project List -->
+            <div class="project-list">
+                <!-- Project Card 1 -->
+                <div class="project-card card">
+                    <div class="project-header">
+                        <h3 class="project-title">Web-Based Student Project Management System</h3>
+                        <span class="badge badge-pending">Available</span>
+                    </div>
+                    <p class="project-supervisor">Supervisor: Dr. John Smith | Department of Computer Science</p>
+                    <p class="project-description">
+                        This project aims to develop a full-stack web application for managing student project topic selection, application workflow, and supervision tracking. The system will support 3 user roles: admin, supervisor, and student.
+                    </p>
+                    <div class="project-meta">
+                        <div class="meta-item">
+                            <strong>Required Skills:</strong> HTML, CSS, JavaScript, SQL, Web Development
+                        </div>
+                        <div class="meta-item">
+                            <strong>Max Students:</strong> 3 | <strong>Available Slots:</strong> 2
+                        </div>
+                    </div>
+                    <div class="project-actions">
+                        <a href="project-detail.html?projectId=1" class="btn btn-primary">View Details & Apply</a>
+                    </div>
+                </div>
+
+                <!-- Project Card 2 -->
+                <div class="project-card card">
+                    <div class="project-header">
+                        <h3 class="project-title">Machine Learning Model for Student Performance Prediction</h3>
+                        <span class="badge badge-pending">Available</span>
+                    </div>
+                    <p class="project-supervisor">Supervisor: Dr. Sarah Lee | Department of Data Science</p>
+                    <p class="project-description">
+                        This project will develop a predictive model using machine learning algorithms to analyze student academic data and predict performance outcomes. The project includes data collection, preprocessing, model training, and a simple web dashboard for visualization.
+                    </p>
+                    <div class="project-meta">
+                        <div class="meta-item">
+                            <strong>Required Skills:</strong> Python, Machine Learning, Data Analysis, Statistics
+                        </div>
+                        <div class="meta-item">
+                            <strong>Max Students:</strong> 2 | <strong>Available Slots:</strong> 1
+                        </div>
+                    </div>
+                    <div class="project-actions">
+                        <a href="project-detail.html?projectId=2" class="btn btn-primary">View Details & Apply</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../common/js/auth.js"></script>
+    <script src="../../common/js/api.js"></script>
+<script>
+// After page loads, call API to get project list
+document.addEventListener('DOMContentLoaded', async function() {
+    try {
+        // Call function in api.js
+        const projectList = await getProjectList();
+        console.log('Project list retrieved:', projectList);
+        // Can render data to page here later
+    } catch (error) {
+        console.error('Failed to load project list:', error);
+    }
+
+    // Search button click event
+    document.getElementById('searchBtn').addEventListener('click', async function() {
+        const keyword = document.getElementById('searchKeyword').value;
+        const category = document.getElementById('topicCategory').value;
+        // Call function with filter parameters
+        const filteredProjects = await getProjectList({
+            keyword: keyword,
+            category: category
+        });
+        console.log('Filtered projects:', filteredProjects);
+    });
+});
+</script>
+</body>
+</html>

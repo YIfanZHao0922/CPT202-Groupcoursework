@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Project Selection System</title>
+    <!-- Path fix: from common/html/ to common/css/, use ../css/ -->
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/register.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-logo" id="logoHome">Project Selection System</div>
+    </header>
+
+    <main class="main-content">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1>Register</h1>
+                    <p>Create your new account</p>
+                </div>
+
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="registerRole" required>
+                            <option value="STUDENT">Student</option>
+                            <option value="TEACHER">Teacher</option>
+                            <option value="ADMIN">Administrator</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="registerUsername" placeholder="Choose a username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="registerEmail" placeholder="Enter your email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="registerPassword" placeholder="Create a password" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" id="registerConfirmPassword" placeholder="Confirm your password" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="agreeTerms" required>
+                            I agree to the University's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">Register</button>
+                    <div id="registerMessage" class="message-area"></div>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="login.html">Back to Login</a></p>
+                    <p><a href="./index.html">Back to Home</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/api.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#logoHome').on('click', function() {
+                window.location.href = "index.html";
+            });
+
+            $('#registerForm').on('submit', async function(e) {
+                e.preventDefault();
+                const role = $('#registerRole').val();
+                const username = $('#registerUsername').val().trim();
+                const email = $('#registerEmail').val().trim();
+                const password = $('#registerPassword').val();
+                const confirmPassword = $('#registerConfirmPassword').val();
+                const agreeTerms = $('#agreeTerms').is(':checked');
+
+                if (!username || !email || !password || !confirmPassword) {
+                    $('#registerMessage').text('Please fill in all fields').removeClass('message-success').addClass('message-error').show();
+                    return;
+                }
+                if (password !== confirmPassword) {
+                    $('#registerMessage').text('Passwords do not match').removeClass('message-success').addClass('message-error').show();
+                    return;
+                }
+                if (password.length < 6) {
+                    $('#registerMessage').text('Password must be at least 6 characters').removeClass('message-success').addClass('message-error').show();
+                    return;
+                }
+                if (!agreeTerms) {
+                    $('#registerMessage').text('Please agree to the Terms of Service and Privacy Policy').removeClass('message-success').addClass('message-error').show();
+                    return;
+                }
+
+                try {
+                    await AuthAPI.register({
+                        username: username,
+                        password: password,
+                        email: email,
+                        fullName: username,
+                        role: role
+                    });
+                    $('#registerMessage').text('Registration successful! Redirecting to login...').removeClass('message-error').addClass('message-success').show();
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } catch (err) {
+                    $('#registerMessage').text(err.message || 'Registration failed').removeClass('message-success').addClass('message-error').show();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
