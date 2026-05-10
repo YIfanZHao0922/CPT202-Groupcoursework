@@ -1,0 +1,33 @@
+# Build output
+target/
+*.jar
+*.war
+
+# Logs
+*.log
+app.log
+nohup.out
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp files
+q
+*.tmp
+*.bak
+*.bak2
+*.bak3
+*.save
+*.save.1
+
+# Sensitive (optional - 看你们 application.yml 有没有真实密码)
+# src/main/resources/application.yml

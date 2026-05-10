@@ -54,7 +54,7 @@ public class Project {
     private LocalDateTime createdAt;
 
     /* Many-to-Many with Category through projectcategory join table. */
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "projectcategory",
             joinColumns = @JoinColumn(name = "projectId"),

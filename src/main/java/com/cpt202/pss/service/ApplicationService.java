@@ -24,6 +24,16 @@ public class ApplicationService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
 
+    public List<ApplicationDto.Response> listAll(Application.Status status,
+                                                 Integer projectId,
+                                                 Integer studentId) {
+        if (SecurityUtils.currentRole() != User.Role.Admin) {
+            throw new BusinessException(403, "Only admin may list all applications");
+        }
+        return applicationRepository.findAllFiltered(status, projectId, studentId)
+                .stream().map(this::toDto).toList();
+    }
+
     public List<ApplicationDto.Response> myApplications() {
         if (SecurityUtils.currentRole() != User.Role.Student) {
             throw new BusinessException(403, "Only students have an application history");
@@ -35,7 +45,6 @@ public class ApplicationService {
     public List<ApplicationDto.Response> forProject(Integer projectId) {
         Project p = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found: " + projectId));
-        // Only the owning teacher (or admin) may inspect a project's applications.
         if (SecurityUtils.currentRole() != User.Role.Admin
                 && !p.getTeacherId().equals(SecurityUtils.currentUserId())) {
             throw new BusinessException(403, "Only the project owner may view its applications");
@@ -46,7 +55,6 @@ public class ApplicationService {
 
     public ApplicationDto.Response get(Integer id) {
         Application a = getEntity(id);
-        // Visible to: the applicant, the project owner, or admin.
         if (SecurityUtils.currentRole() != User.Role.Admin) {
             Project p = projectRepository.findById(a.getProjectId()).orElseThrow();
             Integer me = SecurityUtils.currentUserId();
@@ -57,14 +65,6 @@ public class ApplicationService {
         return toDto(a);
     }
 
-    /**
-     * Student applies to a project.
-     * Business rules enforced:
-     *  - only Student role may apply
-     *  - target project must exist and not be CLOSED
-     *  - student cannot already hold an AGREED active project (one-active-agreement rule)
-     *  - a student cannot have a duplicate PENDING/ACCEPTED application on the same project
-     */
     @Transactional
     public ApplicationDto.Response apply(ApplicationDto.CreateRequest req) {
         if (SecurityUtils.currentRole() != User.Role.Student) {
@@ -82,14 +82,12 @@ public class ApplicationService {
             throw new BusinessException("Project capacity is full");
         }
 
-        // Rule: one active agreed project per student.
         applicationRepository.findFirstByStudentIdAndStatus(studentId, Application.Status.ACCEPTED)
                 .ifPresent(a -> {
                     throw new BusinessException(
                             "You already have an active agreed project (id=" + a.getProjectId() + ")");
                 });
 
-        // Prevent duplicate PENDING request on the same project.
         applicationRepository.findFirstByProjectIdAndStudentIdAndStatus(
                 req.getProjectId(), studentId, Application.Status.PENDING)
                 .ifPresent(a -> {
@@ -104,7 +102,6 @@ public class ApplicationService {
                 .build();
         app = applicationRepository.save(app);
 
-        // Promote project status visually to REQUESTED on first request.
         if (project.getStatus() == Project.Status.AVAILABLE) {
             project.setStatus(Project.Status.REQUESTED);
             projectRepository.save(project);
@@ -112,7 +109,6 @@ public class ApplicationService {
         return toDto(app);
     }
 
-    /** Student withdraws a PENDING request. */
     @Transactional
     public ApplicationDto.Response withdraw(Integer applicationId) {
         Application a = getEntity(applicationId);
@@ -126,13 +122,6 @@ public class ApplicationService {
         return toDto(applicationRepository.save(a));
     }
 
-    /**
-     * Teacher decides on an application: ACCEPT or REJECT.
-     * On ACCEPT:
-     *  - currentStudents++
-     *  - if maxStudents reached: project &rarr; AGREED, all other PENDING apps rejected
-     *  - if not full: project stays REQUESTED
-     */
     @Transactional
     public ApplicationDto.Response decide(Integer applicationId,
                                           ApplicationDto.DecisionRequest req) {
@@ -152,22 +141,26 @@ public class ApplicationService {
             throw new BusinessException(403, "Only the project owner may decide");
         }
 
+        // 防御性校验必须在修改 a.status 之前，否则 JPA 自动 flush 会把
+        // 当前这条记录刷成 ACCEPTED，查询时就会把自己当成"已存在的同意项目"
+        if (req.getStatus() == Application.Status.ACCEPTED) {
+            applicationRepository
+                .findFirstByStudentIdAndStatus(a.getStudentId(), Application.Status.ACCEPTED)
+                .ifPresent(other -> {
+                    if (!other.getApplicationId().equals(a.getApplicationId())) {
+                        throw new BusinessException("Student already has an active agreed project");
+                    }
+                });
+        }
+
         a.setStatus(req.getStatus());
         a.setFeedback(req.getFeedback());
 
         if (req.getStatus() == Application.Status.ACCEPTED) {
-            // Defensive double-check: student must still be eligible.
-            applicationRepository
-                .findFirstByStudentIdAndStatus(a.getStudentId(), Application.Status.ACCEPTED)
-                .ifPresent(other -> {
-                    throw new BusinessException("Student already has an active agreed project");
-                });
-
             int now = (p.getCurrentStudents() == null ? 0 : p.getCurrentStudents()) + 1;
             p.setCurrentStudents(now);
             if (now >= p.getMaxStudents()) {
                 p.setStatus(Project.Status.AGREED);
-                // Auto-reject other PENDING requests for the same project.
                 List<Application> others = applicationRepository
                         .findByProjectIdAndStatus(p.getProjectId(), Application.Status.PENDING);
                 for (Application o : others) {
@@ -211,5 +204,5 @@ public class ApplicationService {
                 .feedback(a.getFeedback())
                 .appliedAt(a.getAppliedAt())
                 .build();
-    }
+        }
 }

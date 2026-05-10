@@ -2,6 +2,7 @@ package com.cpt202.pss.controller;
 
 import com.cpt202.pss.dto.ApiResponse;
 import com.cpt202.pss.dto.ApplicationDto;
+import com.cpt202.pss.entity.Application;
 import com.cpt202.pss.service.ApplicationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,16 @@ import java.util.List;
 public class ApplicationController {
 
     private final ApplicationService applicationService;
+
+    /** Admin: list ALL applications across the system, optional filters. */
+    @GetMapping
+    @PreAuthorize("hasRole('Admin')")
+    public ApiResponse<List<ApplicationDto.Response>> listAll(
+            @RequestParam(required = false) Application.Status status,
+            @RequestParam(required = false) Integer projectId,
+            @RequestParam(required = false) Integer studentId) {
+        return ApiResponse.success(applicationService.listAll(status, projectId, studentId));
+    }
 
     /** Student: my applications history. */
     @GetMapping("/mine")

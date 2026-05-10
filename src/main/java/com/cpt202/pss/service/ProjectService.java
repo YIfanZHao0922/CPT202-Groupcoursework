@@ -1,11 +1,13 @@
 package com.cpt202.pss.service;
 
 import com.cpt202.pss.dto.ProjectDto;
+import com.cpt202.pss.entity.Application;
 import com.cpt202.pss.entity.Category;
 import com.cpt202.pss.entity.Project;
 import com.cpt202.pss.entity.User;
 import com.cpt202.pss.exception.BusinessException;
 import com.cpt202.pss.exception.ResourceNotFoundException;
+import com.cpt202.pss.repository.ApplicationRepository;
 import com.cpt202.pss.repository.CategoryRepository;
 import com.cpt202.pss.repository.ProjectRepository;
 import com.cpt202.pss.repository.UserRepository;
@@ -25,6 +27,7 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final ApplicationRepository applicationRepository;
 
     public List<ProjectDto.Response> search(String keyword,
                                             Project.Status status,
@@ -92,13 +95,35 @@ public class ProjectService {
         return toDto(projectRepository.save(p));
     }
 
+    /**
+     * Delete a project.
+     *  - Regular teachers: cannot delete a project that has accepted students; must close/archive first.
+     *  - Admin: can force-delete; in that case all related applications are cascaded out first
+     *    so the foreign key constraint (applications.projectId -> projects.projectId) is respected.
+     */
     @Transactional
     public void delete(Integer id) {
         Project p = getEntity(id);
         ensureOwnedOrAdmin(p);
-        if (p.getCurrentStudents() != null && p.getCurrentStudents() > 0) {
+
+        boolean isAdmin = SecurityUtils.currentRole() == User.Role.Admin;
+
+        if (!isAdmin && p.getCurrentStudents() != null && p.getCurrentStudents() > 0) {
             throw new BusinessException("Cannot delete a project with active students; close/archive first");
         }
+
+        // Cascade: remove all applications referencing this project to satisfy the FK constraint.
+        List<Application> apps = applicationRepository.findByProjectId(id);
+        if (!apps.isEmpty()) {
+            applicationRepository.deleteAll(apps);
+        }
+
+        // Clear the many-to-many link table (project_category) before removing the project itself.
+        if (p.getCategories() != null && !p.getCategories().isEmpty()) {
+            p.getCategories().clear();
+            projectRepository.save(p);
+        }
+
         projectRepository.delete(p);
     }
 

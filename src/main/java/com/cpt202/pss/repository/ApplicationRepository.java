@@ -2,6 +2,8 @@ package com.cpt202.pss.repository;
 
 import com.cpt202.pss.entity.Application;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -24,4 +26,17 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
 
     /** Used to mass-reject other PENDING apps once one is ACCEPTED for the same project (when full). */
     List<Application> findByProjectIdAndStatus(Integer projectId, Application.Status status);
+
+    /**
+     * Admin-only: list all applications across the system with optional filters.
+     * Each filter is nullable; null means "no constraint".
+     */
+    @Query("SELECT a FROM Application a WHERE " +
+           "(:status IS NULL OR a.status = :status) AND " +
+           "(:projectId IS NULL OR a.projectId = :projectId) AND " +
+           "(:studentId IS NULL OR a.studentId = :studentId) " +
+           "ORDER BY a.appliedAt DESC")
+    List<Application> findAllFiltered(@Param("status") Application.Status status,
+                                      @Param("projectId") Integer projectId,
+                                      @Param("studentId") Integer studentId);
 }
